@@ -24,6 +24,7 @@ def validate_openai_api_key(api_key):
         return False
     
 st.title("YouTube Assistant")
+st.write("This app uses one of OpenAI's models to answer questions about a YouTube video.\n The app occasionally crashes due to a currently undiagnosed issue with the OpenAI API. If this happens, please try again later.")
 
 # Initialize session state
 if 'logged_in' not in st.session_state:
