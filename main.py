@@ -51,8 +51,11 @@ else:
             submit_button = st.form_submit_button(label='Submit')       
         
     if submit_button and query and youtube_url:
-        openai.api_key = st.session_state.api_key
-        db = lch.create_vector_from_youtube_url(youtube_url, language, st.session_state.api_key)
-        response, doc = lch.get_response_from_query(db, query, language, st.session_state.api_key)
-        st.subheader("Answer:")
-        st.markdown(textwrap.fill(response, width=80))
+        #openai.api_key = st.session_state.api_key
+        try:
+            db = lch.create_vector_from_youtube_url(youtube_url, language, st.session_state.api_key)
+            response, doc = lch.get_response_from_query(db, query, language, st.session_state.api_key)
+            st.subheader("Answer:")
+            st.markdown(textwrap.fill(response, width=80))
+        except ValueError as e:
+            st.error(f"Error: {e}")

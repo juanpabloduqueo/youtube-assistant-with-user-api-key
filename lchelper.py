@@ -30,8 +30,15 @@ def create_vector_from_youtube_url(video_url: str, language: str, api_key: str) 
         vector = create_vector_from_youtube_url(video_url)
     """
     try:
+        logging.info(f"Fetching transcript for video URL: {video_url} in language: {language}")
         loader = YoutubeLoader.from_youtube_url(video_url, language=language)
         transcript = loader.load()
+        
+        if not transcript:
+            raise ValueError("Transcript is empty. Check the input video URL and language.")
+        
+        logging.info(f"Transcript fetched: {transcript}")
+               
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
         docs = text_splitter.split_documents(transcript)
         
