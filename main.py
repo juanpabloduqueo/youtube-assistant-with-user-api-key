@@ -10,8 +10,6 @@ def validate_openai_api_key(api_key):
     '''
     try:
         openai.api_key = api_key   
-
-
         openai.chat.completions.create(
         messages=[
             {
@@ -20,9 +18,7 @@ def validate_openai_api_key(api_key):
             }
         ],
         model="gpt-3.5-turbo",
-        )
-        
-        
+        )     
         return True
     except openai.APIError:
         return False
@@ -56,7 +52,7 @@ else:
         
     if submit_button and query and youtube_url:
         openai.api_key = st.session_state.api_key
-        db = lch.create_vector_from_youtube_url(youtube_url, language)
-        response, doc = lch.get_response_from_query(db, query, language)
+        db = lch.create_vector_from_youtube_url(youtube_url, language, st.session_state.api_key)
+        response, doc = lch.get_response_from_query(db, query, language, st.session_state.api_key)
         st.subheader("Answer:")
         st.markdown(textwrap.fill(response, width=80))

@@ -11,10 +11,12 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # Initialize OpenAI embeddings
-embeddings = OpenAIEmbeddings()
+def initialize_embeddings(api_key: str) -> OpenAIEmbeddings:
+    return OpenAIEmbeddings(openai_api_key=api_key)
+
 video_url = "https://youtu.be/-Osca2Zax4Y?si=RE045YHRPMfA7oR5"
 
-def create_vector_from_youtube_url(video_url: str, language: str) -> FAISS:
+def create_vector_from_youtube_url(video_url: str, language: str, api_key: str) -> FAISS:
     """
     Creates a vector representation of the given YouTube video URL.
     Parameters:
@@ -33,22 +35,22 @@ def create_vector_from_youtube_url(video_url: str, language: str) -> FAISS:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
         docs = text_splitter.split_documents(transcript)
         
-        
-        if not embeddings:
-            raise ValueError("Embeddings list is empty. There might be an issue with the transcript or language processing.")
+        if not docs:
+            raise ValueError("No documents were generated. Check the input video URL and language.")
 
+        embeddings = initialize_embeddings(api_key)
+        embeddings_list = embeddings.embed_documents([doc.page_content for doc in docs])
         
+        if not embeddings_list:
+            raise ValueError("No embeddings were generated. Check the input documents and embedding model.")
+             
         db = FAISS.from_documents(docs, embeddings)
         return db
     
-    except IndexError as e:
-        st.error(f"IndexError occurred: {str(e)}")
-        raise ValueError("Error creating vector from YouTube URL (List index out of range)")
     except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
-        raise ValueError(f"Error creating vector from YouTube URL: {str(e)}")
+        raise ValueError(f"Error creating vector from YouTube URL: {e}")
 
-def get_response_from_query(db, query, language,k=4):
+def get_response_from_query(db, query, api_key, language,k=4):
     """
     Retrieves a response to a query based on a similarity search in a database.
     Parameters:
@@ -67,7 +69,7 @@ def get_response_from_query(db, query, language,k=4):
     docs = db.similarity_search(query, k=k)
     docs_page_content = " ".join([doc.page_content for doc in docs])
     
-    llm = ChatOpenAI(model="gpt-4o-mini-2024-07-18")
+    llm = ChatOpenAI(model="gpt-4o-mini-2024-07-18", openai_api_key=api_key)
     
     language_str = 'Spanish' if language == 'es' else 'German' if language == 'de' else 'English'
     
