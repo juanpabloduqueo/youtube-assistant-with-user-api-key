@@ -57,7 +57,7 @@ def create_vector_from_youtube_url(video_url: str, language: str, api_key: str) 
     except Exception as e:
         raise ValueError(f"Error creating vector from YouTube URL: {e}")
 
-def get_response_from_query(db, query, api_key, language,k=4):
+def get_response_from_query(db, query, language, api_key,k=4):
     """
     Retrieves a response to a query based on a similarity search in a database.
     Parameters:
