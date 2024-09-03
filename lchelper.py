@@ -35,6 +35,7 @@ def create_vector_from_youtube_url(video_url: str, language: str, api_key: str) 
         transcript = loader.load()
         
         if not transcript:
+            logging.error("Transcript is empty. Check the input video URL and language.")
             raise ValueError("Transcript is empty. Check the input video URL and language.")
         
         logging.info(f"Transcript fetched: {transcript}")
@@ -43,18 +44,21 @@ def create_vector_from_youtube_url(video_url: str, language: str, api_key: str) 
         docs = text_splitter.split_documents(transcript)
         
         if not docs:
+            logging.error("No documents were generated. Check the input video URL and language.")
             raise ValueError("No documents were generated. Check the input video URL and language.")
 
         embeddings = initialize_embeddings(api_key)
         embeddings_list = embeddings.embed_documents([doc.page_content for doc in docs])
         
         if not embeddings_list:
+            logging.error("No embeddings were generated. Check the input documents and embedding model.")
             raise ValueError("No embeddings were generated. Check the input documents and embedding model.")
              
         db = FAISS.from_documents(docs, embeddings)
         return db
     
     except Exception as e:
+        logging.error(f"Error creating vector from YouTube URL: {e}")
         raise ValueError(f"Error creating vector from YouTube URL: {e}")
 
 def get_response_from_query(db, query, language, api_key,k=4):
